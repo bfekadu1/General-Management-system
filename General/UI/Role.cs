@@ -82,7 +82,7 @@ namespace General.UI
 
 
             //throw new NotImplementedException();
-            //another
+           
         }
         public int x = 0;
 
@@ -92,12 +92,10 @@ namespace General.UI
             {
                 if (roles[i].description == text)
                 {
-                    //trying
+                    
                     return roles[i].id;
                     break;
-                    // here
-                    //lhaskjlnc
-                    //opopoopo
+                   
                 }
                 
             }
