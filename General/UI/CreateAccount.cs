@@ -565,15 +565,12 @@ namespace General.UI
 
         private void simpleButton5_Click(object sender, EventArgs e)
         {
-
-
             using (SqlConnection conn = new SqlConnection(context))
             {
                 conn.Open();
                 try
                     
                 {
-
                     string deleteQuery = "update general.user_account set active=0 where person_id= @person_id";
                     using(SqlCommand command = new SqlCommand(deleteQuery, conn))
                     {
