@@ -188,6 +188,11 @@ namespace General
         {
 
         }
+
+        private void panelControl7_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 
 

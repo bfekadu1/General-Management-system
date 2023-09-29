@@ -67,9 +67,10 @@
     </Compile>
     <Compile Include="idGeneratorStructure.cs" />
     <Compile Include="Logic\Validate.cs" />
+    <Compile Include="Model\UserRole.cs" />
     <Compile Include="Model\Functionality.cs" />
     <Compile Include="Model\RoleModel.cs" />
-    <Compile Include="Model\Users.cs" />
+    <Compile Include="Model\User.cs" />
     <Compile Include="person.cs" />
     <Compile Include="UI\CreateAccount.cs">
       <SubType>Form</SubType>

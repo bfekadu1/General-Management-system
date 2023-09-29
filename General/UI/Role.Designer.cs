@@ -119,6 +119,8 @@ namespace General.UI
             // 
             // txtUserNames
             // 
+            this.txtUserNames.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+            this.txtUserNames.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
             this.txtUserNames.FormattingEnabled = true;
             this.txtUserNames.Location = new System.Drawing.Point(155, 95);
             this.txtUserNames.Name = "txtUserNames";

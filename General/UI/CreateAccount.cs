@@ -581,7 +581,7 @@ namespace General.UI
                         int rowsAffected = command.ExecuteNonQuery();
                         if(rowsAffected > 0)
                         {
-                            MessageBox.Show("record deleted sucessfully");
+                            MessageBox.Show("record removed sucessfully");
                         }
                         else
                         {

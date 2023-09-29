@@ -17,127 +17,122 @@ namespace General.UI
         DataAcess.DataAccess da = new DataAcess.DataAccess();
         List<userNameList> loadUsernames = new List<userNameList>();
         List<Functionality> functionalities = new List<Functionality>();   
-        List<RoleModel> checkBoxList = new List<RoleModel>();
         List<Functionality> roles = new List<Functionality>();
+        List<UserRole> userRoles = new List<UserRole>();
         List<string> selectedValues = new List<string>();
         List<int>description_id=new List<int>();
+        List<CheckBox>ListOfCheckBox= new List<CheckBox>();
+        userNameList userList = new userNameList();
+
 
         public Role()
         { 
             InitializeComponent();
+            userRoles = da.getAllUserRoles();
             loadUsernames = da.getAllusers();
-            txtUserNames.Items.Add("Select user");
+            functionalities = da.getCheckBox();
             txtUserNames.DataSource= loadUsernames;
             txtUserNames.DisplayMember = "user_name";
-            txtUserNames.ValueMember = "id";
-           
+            txtUserNames.ValueMember = "id";  
 
         }
-        
-
-
-
-
         private void simpleButton1_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
-
         private void Role_Load(object sender, EventArgs e)
         {
+        
+        }
+
+        // the above code draw the check box for every user that is selected it will change every time a user is changed
+        private void txtUserNames_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            foreach(CheckBox checkbox in ListOfCheckBox)
+            {
+                panelControl3.Controls.Remove(checkbox);
+                checkbox.Dispose();     
+            }
+            ListOfCheckBox.Clear();
+            userNameList selectedUser = (userNameList)txtUserNames.SelectedItem;
+            userList.id = selectedUser.id;
+            userList.user_name = selectedUser.user_name;
+            userRoles.Clear();
+            userRoles = da.getAllUserRoles();
+            var users = userRoles.Where(userRoles => userRoles.useri_id == userList.id);
             int x = 155;
             int y = 150;
-            roles = da.getCheckBox();
-            for (var i=0;i<roles.Count;i++)
-            {
-                CheckBox checkBox = new CheckBox();
-                checkBox.Text = roles[i].description;
-                checkBox.Size = new Size(124, 27);
-                //checkBox.Name = "checkBox_" + i;
-                checkBox.Location = new Point(x, y);
-                checkBox.CheckedChanged += CheckBox_CheckedChanged;
 
-                y = y + 50;
-                panelControl3.Controls.Add(checkBox);
-                RoleModel model = new RoleModel();  
-                model.RoleCheckBox=checkBox;
-                checkBoxList.Add(model);
-
-            }
-        }
-
-        private void CheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            CheckBox checkBox = (CheckBox)sender;
-            if (checkBox.Checked)
+            for (var i = 0; i < functionalities.Count; i++)
             {
                 
-                description_id.Add(getid(checkBox.Text));
+                CheckBox checkBox = new CheckBox();
+                checkBox.Text = functionalities[i].description;
+                checkBox.Size = new Size(124, 27);
+                //checkBox.Name = "txt" + functionalities[i].description;
+                checkBox.Location = new Point(x, y);
+                
+                foreach (var use in users)
+                {
+                    if (use.functionalty_id == functionalities[i].id)
+                    {
+                        checkBox.Checked = true;
+                    }
+                    
+                }
+                checkBox.CheckedChanged += CheckBox_CheckedChanged;
+                y = y + 50;
+                panelControl3.Controls.Add(checkBox);
+                ListOfCheckBox.Add(checkBox);
             }
-            else
-            {
-                selectedValues.Remove(checkBox.Text); 
-            }
-
-
-
-            //throw new NotImplementedException();
-           
         }
-        public int x = 0;
+
+       private void CheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            //CheckBox checkBox = (CheckBox)sender; 
+         }
+        
 
         public int getid(string text)
         {
-            for (int i = 0; i < roles.Count; i++)
+            for (int i = 0; i < functionalities.Count; i++)
             {
-                if (roles[i].description == text)
+                if (functionalities[i].description == text)
                 {
                     
-                    return roles[i].id;
+                    return functionalities[i].id;
                     break;
                    
-                }
-                
+                }  
             }
-
             return 0;
         }
-
+        
         private void btnSave_Click(object sender, EventArgs e)
         {
-            userNameList userList= new userNameList();
+
             userNameList selectedUser = (userNameList)txtUserNames.SelectedItem;
             userList.id = selectedUser.id;
-            userList.user_name= selectedUser.user_name;
-
-
-            string context = @"Data Source=DESKTOP-A2IS30E\SQLEXPRESS;Initial Catalog=HAHC;Integrated Security=True ";
-            using (SqlConnection connection = new SqlConnection(context))
+            userList.user_name = selectedUser.user_name;
+            foreach (var checkbox in ListOfCheckBox)
             {
-                connection.Open();
-                string sql = "select * from general.role where usri_d='" + userList.id + "'";
-                //trying to do
+                if (checkbox.Checked)
+                {
+
+                    description_id.Add(getid(checkbox.Text));
+                }
+                else
+                {
+                    selectedValues.Remove(checkbox.Text);
+                }
             }
-            using (SqlConnection connection = new SqlConnection(context))
-                {
-                int rowcount = 0;
-                    connection.Open();
-                    foreach (int i in description_id)
-                    {
-                        string sql = "INSERT INTO general.role (useri_d,functionalty_id) VALUES (@user_id,@functionality_id)";
-                        using (SqlCommand cmd = new SqlCommand(sql, connection))
-                        {
-                            cmd.Parameters.AddWithValue("@user_id", userList.id);
-                            cmd.Parameters.AddWithValue("@functionality_id", i);
-                            rowcount=cmd.ExecuteNonQuery();
-                        }
-                    }
-                if (rowcount < 0)
-                {
-                    description_id = null;
-                }
-                }
+
+
+            da.removeUserRole(userList.id);
+            da.addUserRole(userList.id, description_id);
 
         }
+
+        
     }
 }

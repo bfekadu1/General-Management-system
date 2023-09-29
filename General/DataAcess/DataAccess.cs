@@ -11,17 +11,20 @@ using DevExpress.Printing.Core.PdfExport.Metafile;
 using General.Model;
 using DevExpress.Data.Async;
 using DevExpress.Utils.Commands;
+using DevExpress.Xpo.DB.Helpers;
+using static DevExpress.XtraEditors.Mask.MaskSettings;
 
 namespace General.DataAcess
 {
     public class DataAccess
     {
         string connection= @"Data Source=DESKTOP-A2IS30E\SQLEXPRESS;Initial Catalog=HAHC;Integrated Security=True";
-        List<Functionality> userRoles = new List<Functionality>();
-        List<User> Users=new List<User>();
+        List<Functionality> Functionalities = new List<Functionality>();
+        List<Model.User> users=new List<Model.User>();
         List<userNameList> Usernames= new List<userNameList>();
+        List<UserRole>  userRoles= new List<UserRole>();
         
-        public List<User> getUsers()
+        public List<Model.User> getUsers()
         {
             
             SqlConnection conn= new SqlConnection(connection);
@@ -32,7 +35,7 @@ namespace General.DataAcess
             var reader= cmd.ExecuteReader();
             while (reader.Read())
             {
-                User users = new User
+                Model.User user = new Model.User
                 {
                     person_id = reader["id"].ToString(),
                     first_name = reader["first_name"].ToString(),
@@ -47,12 +50,12 @@ namespace General.DataAcess
                     phone = int.Parse(reader["phone"].ToString()),
                     active =reader.GetBoolean(11)
                 };  
-                Users.Add(users);
+                users.Add(user);
 
             }
                   
 
-            return Users ;
+            return users ;
 
         }
         public List<userNameList> getAllusers() { 
@@ -77,7 +80,7 @@ namespace General.DataAcess
             }
             return Usernames;
         }
-       public  List<Functionality>getCheckBox()
+        public  List<Functionality>getCheckBox()
         {
             using(SqlConnection conn= new SqlConnection(connection))
             {
@@ -96,11 +99,71 @@ namespace General.DataAcess
 
 
                     };
-                    userRoles.Add(functionality);
+                    Functionalities.Add(functionality);
                 }
 
             }
+            return Functionalities;
+        }
+        public List<UserRole>getAllUserRoles()
+        {
+            using (SqlConnection conn= new SqlConnection(connection))
+            {
+                conn.Open();
+                SqlCommand cmd = conn.CreateCommand();
+                cmd.CommandText = "select * from general.role";
+                cmd.Connection = conn;
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    UserRole role = new UserRole
+                    {
+                        id = int.Parse(reader["id"].ToString()),
+                        useri_id = int.Parse(reader["useri_d"].ToString()),
+                        functionalty_id = int.Parse(reader["functionalty_id"].ToString()),
+                    };
+                    userRoles.Add(role);
+
+                }
+            }
             return userRoles;
+        }
+        public void removeUserRole(int user_id )
+        {
+            string query = "Delete from general.role where useri_d=@user_id";
+            using (SqlConnection conn = new SqlConnection(connection))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@user_id", user_id);
+                    cmd.ExecuteNonQuery();
+                }
+
+            }
+        }
+        public void addUserRole(int user_id,List<int> id_contaneir)
+        {
+            
+            using (SqlConnection conn = new SqlConnection(connection))
+            {
+                int rowcount = 0;
+                conn.Open();
+                foreach (int i in id_contaneir)
+                {
+                    string sql = "INSERT INTO general.role (useri_d,functionalty_id) VALUES (@user_id,@functionality_id)";
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@user_id", user_id);
+                        cmd.Parameters.AddWithValue("@functionality_id", i);
+                        rowcount = cmd.ExecuteNonQuery();
+                    }
+                }
+                if (rowcount > 0)
+                {
+                    id_contaneir = null;
+                }
+            }
         }
     }
 }
